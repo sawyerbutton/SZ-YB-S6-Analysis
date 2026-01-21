@@ -1,0 +1,3092 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dota2 对手分析报告</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #eee;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5em;
+        }
+        .timestamp { text-align: center; color: #888; margin-bottom: 30px; }
+        .team-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            border-left: 4px solid;
+        }
+        .team-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .player-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .player-card {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s;
+        }
+        .player-card:hover { transform: translateY(-5px); }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .player-name { font-size: 1.3em; font-weight: bold; }
+        .player-position {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        .trend-up { color: #4ade80; }
+        .trend-down { color: #f87171; }
+        .trend-stable { color: #fbbf24; }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-label { color: #888; }
+        .stat-value { font-weight: bold; }
+        .hero-list { margin-top: 15px; }
+        .hero-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            margin: 5px 0;
+        }
+        .hero-name { font-weight: 500; }
+        .hero-stats { color: #888; font-size: 0.9em; }
+        .win-rate-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .win-rate-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+        .duration-analysis {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .duration-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+        }
+        .duration-label { font-size: 0.8em; color: #888; }
+        .duration-value { font-size: 1.2em; font-weight: bold; margin-top: 5px; }
+        .error-card {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Dota2 对手分析报告</h1>
+        <p class="timestamp">生成时间: 2026-01-22 01:52:28</p>
+
+        <div class="team-section" style="border-left-color: #FFF2CC;">
+            <h2 class="team-title">
+                <span style="color: #FFF2CC;">●</span> 队伍1
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">思Kirara</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">61.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 61.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.18</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 2.63</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">83.3%</div>
+                            <div class="duration-label">6场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">61.9%</div>
+                            <div class="duration-label">63场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">54.8%</div>
+                            <div class="duration-label">31场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ogre Magi</span>
+                            <span class="hero-stats">17场 <span style="color: #4ade80;">64.71%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Mars</span>
+                            <span class="hero-stats">12场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Necrophos</span>
+                            <span class="hero-stats">12场 <span style="color: #4ade80;">75.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Centaur Warrunner</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">75.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Bounty Hunter</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">德德</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">46.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 46.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.6</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">30.0% / KDA 2.02</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">28.6%</div>
+                            <div class="duration-label">7场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">48.5%</div>
+                            <div class="duration-label">66场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">44.4%</div>
+                            <div class="duration-label">27场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">28场 <span style="color: #4ade80;">60.71%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ember Spirit</span>
+                            <span class="hero-stats">13场 <span style="color: #f87171;">38.46%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">11.11%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">28.57%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">awe</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">49.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 49.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.99</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">30.0% / KDA 2.3</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">28.6%</div>
+                            <div class="duration-label">14场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">46.8%</div>
+                            <div class="duration-label">62场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">66.7%</div>
+                            <div class="duration-label">24场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Pangolier</span>
+                            <span class="hero-stats">17场 <span style="color: #4ade80;">64.71%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Primal Beast</span>
+                            <span class="hero-stats">14场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Timbersaw</span>
+                            <span class="hero-stats">12场 <span style="color: #4ade80;">58.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">37.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Techies</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">14.29%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">peter</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">53.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 53.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.42</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 4.8</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">55.6%</div>
+                            <div class="duration-label">9场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">56.1%</div>
+                            <div class="duration-label">66场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">44.0%</div>
+                            <div class="duration-label">25场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Queen of Pain</span>
+                            <span class="hero-stats">21场 <span style="color: #fbbf24;">47.62%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Storm Spirit</span>
+                            <span class="hero-stats">12场 <span style="color: #f87171;">41.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">10场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Necrophos</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">75.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Void Spirit</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">42.86%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">JY.LIU</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">55.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 55.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.53</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-up">🔥 上升</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">65.0% / KDA 3.85</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">2场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">58.2%</div>
+                            <div class="duration-label">67场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">48.4%</div>
+                            <div class="duration-label">31场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Storm Spirit</span>
+                            <span class="hero-stats">13场 <span style="color: #fbbf24;">53.85%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slark</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Weaver</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Chaos Knight</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">80.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Drow Ranger</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #D5E8D4;">
+            <h2 class="team-title">
+                <span style="color: #D5E8D4;">●</span> 队伍2
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">ahji</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">58.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 58.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.43</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 3.23</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">25.0%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">61.5%</div>
+                            <div class="duration-label">65场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">65.2%</div>
+                            <div class="duration-label">23场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Tidehunter</span>
+                            <span class="hero-stats">8场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Spectre</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Drow Ranger</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">75.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Clinkz</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">80.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">Sam QL</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">57.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 57.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.28</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-up">🔥 上升</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">70.0% / KDA 3.77</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">66.7%</div>
+                            <div class="duration-label">3场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">62.7%</div>
+                            <div class="duration-label">59场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">47.4%</div>
+                            <div class="duration-label">38场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Necrophos</span>
+                            <span class="hero-stats">19场 <span style="color: #fbbf24;">52.63%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Windranger</span>
+                            <span class="hero-stats">10场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Drow Ranger</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Witch Doctor</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">85.71%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">清寒</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #f87171;">35.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 35.0%; background: #f87171;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">1.1</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 1.18</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">33.3%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">27.3%</div>
+                            <div class="duration-label">55场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">48.5%</div>
+                            <div class="duration-label">33场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Alchemist</span>
+                            <span class="hero-stats">33场 <span style="color: #f87171;">39.39%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Shadow Shaman</span>
+                            <span class="hero-stats">28场 <span style="color: #f87171;">39.29%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">83.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lion</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">16.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slark</span>
+                            <span class="hero-stats">3场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">阿边边边边边</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">49.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 49.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.04</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 3.0</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">37.5%</div>
+                            <div class="duration-label">16场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">52.9%</div>
+                            <div class="duration-label">70场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">42.9%</div>
+                            <div class="duration-label">14场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Kez</span>
+                            <span class="hero-stats">8场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Huskar</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Queen of Pain</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Visage</span>
+                            <span class="hero-stats">4场 <span style="color: #4ade80;">75.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Morphling</span>
+                            <span class="hero-stats">4场 <span style="color: #f87171;">25.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">VK</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">46.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 46.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.59</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">55.0% / KDA 2.14</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">25.0%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">64场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">45.8%</div>
+                            <div class="duration-label">24场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ember Spirit</span>
+                            <span class="hero-stats">19场 <span style="color: #4ade80;">57.89%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">15场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Primal Beast</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #DAE8FC;">
+            <h2 class="team-title">
+                <span style="color: #DAE8FC;">●</span> 队伍3
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">LiffyIsland</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">55.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 55.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.91</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 3.17</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">66.7%</div>
+                            <div class="duration-label">9场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">51.6%</div>
+                            <div class="duration-label">62场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">58.6%</div>
+                            <div class="duration-label">29场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">16场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">15场 <span style="color: #4ade80;">73.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ancient Apparition</span>
+                            <span class="hero-stats">11场 <span style="color: #fbbf24;">54.55%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Zeus</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Silencer</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">Ym</span>
+                        <span class="player-position">4号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">50.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 50.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.73</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 3.78</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">33.3%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">47.1%</div>
+                            <div class="duration-label">68场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">70.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Hoodwink</span>
+                            <span class="hero-stats">22场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Io</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">25.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Windranger</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Spectre</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lich</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">83.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">海柱哥</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">49.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 49.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.55</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 2.12</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">30.8%</div>
+                            <div class="duration-label">13场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">50.8%</div>
+                            <div class="duration-label">65场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">54.5%</div>
+                            <div class="duration-label">22场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Tidehunter</span>
+                            <span class="hero-stats">19场 <span style="color: #4ade80;">68.42%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lich</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Beastmaster</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">12.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Sand King</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Disruptor</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">walker</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">53.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 53.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.76</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-up">🔥 上升</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">60.0% / KDA 3.58</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">6场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">51.9%</div>
+                            <div class="duration-label">77场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">58.8%</div>
+                            <div class="duration-label">17场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">16场 <span style="color: #4ade80;">68.75%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">14场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Warlock</span>
+                            <span class="hero-stats">11场 <span style="color: #4ade80;">81.82%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Centaur Warrunner</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Tidehunter</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">will</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">52.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 52.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.43</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 3.43</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">36.4%</div>
+                            <div class="duration-label">22场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">62.1%</div>
+                            <div class="duration-label">58场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">40.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Juggernaut</span>
+                            <span class="hero-stats">16场 <span style="color: #4ade80;">56.25%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Weaver</span>
+                            <span class="hero-stats">12场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Clinkz</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">42.86%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Drow Ranger</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Shadow Fiend</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #E1D5E7;">
+            <h2 class="team-title">
+                <span style="color: #E1D5E7;">●</span> 队伍4
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">黄神AME</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">49.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 49.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.75</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 2.34</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">42.9%</div>
+                            <div class="duration-label">14场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">47.5%</div>
+                            <div class="duration-label">59场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">55.6%</div>
+                            <div class="duration-label">27场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Outworld Destroyer</span>
+                            <span class="hero-stats">14场 <span style="color: #4ade80;">64.29%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Alchemist</span>
+                            <span class="hero-stats">12场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Centaur Warrunner</span>
+                            <span class="hero-stats">10场 <span style="color: #4ade80;">80.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Shadow Shaman</span>
+                            <span class="hero-stats">8场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Phantom Lancer</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">42.86%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">邮寄时光</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">51.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 51.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.54</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-up">🔥 上升</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">60.0% / KDA 4.1</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">36.4%</div>
+                            <div class="duration-label">11场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">47.6%</div>
+                            <div class="duration-label">63场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">65.4%</div>
+                            <div class="duration-label">26场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Shadow Shaman</span>
+                            <span class="hero-stats">12场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Disruptor</span>
+                            <span class="hero-stats">10场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Zeus</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">22.22%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lion</span>
+                            <span class="hero-stats">9场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Necrophos</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">100.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">看我干嘛</span>
+                        <span class="player-position">4号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">59.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 59.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.84</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">45.0% / KDA 2.16</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">70.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">57.4%</div>
+                            <div class="duration-label">54场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">53.8%</div>
+                            <div class="duration-label">26场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Grimstroke</span>
+                            <span class="hero-stats">27场 <span style="color: #4ade80;">62.96%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Rubick</span>
+                            <span class="hero-stats">13场 <span style="color: #4ade80;">61.54%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Magnus</span>
+                            <span class="hero-stats">10场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Witch Doctor</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Clockwerk</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">yuan.</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">60.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 60.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.46</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">80.0% / KDA 3.37</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">75.0%</div>
+                            <div class="duration-label">8场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">53.1%</div>
+                            <div class="duration-label">64场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">71.4%</div>
+                            <div class="duration-label">28场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Void Spirit</span>
+                            <span class="hero-stats">27场 <span style="color: #4ade80;">59.26%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Nature's Prophet</span>
+                            <span class="hero-stats">12场 <span style="color: #4ade80;">83.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Phantom Lancer</span>
+                            <span class="hero-stats">11场 <span style="color: #fbbf24;">54.55%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Clinkz</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">3场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card error-card">
+                    <div class="player-header">
+                        <span class="player-name">烟火声</span>
+                        <span class="player-position">❌ 数据缺失</span>
+                    </div>
+                    <p style="color: #f87171;">无法获取数据</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #FFE6CC;">
+            <h2 class="team-title">
+                <span style="color: #FFE6CC;">●</span> 队伍5
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">Dom</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">55.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 55.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.43</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 1.81</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">40.0%</div>
+                            <div class="duration-label">10场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">53.3%</div>
+                            <div class="duration-label">60场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">63.3%</div>
+                            <div class="duration-label">30场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">19场 <span style="color: #f87171;">42.11%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lich</span>
+                            <span class="hero-stats">18场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">14场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Witch Doctor</span>
+                            <span class="hero-stats">10场 <span style="color: #4ade80;">70.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Chaos Knight</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">85.71%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">老板</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #f87171;">42.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 42.0%; background: #f87171;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.58</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">55.0% / KDA 2.65</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">41.2%</div>
+                            <div class="duration-label">17场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">40.0%</div>
+                            <div class="duration-label">65场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">18场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Pugna</span>
+                            <span class="hero-stats">17场 <span style="color: #fbbf24;">52.94%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">11场 <span style="color: #fbbf24;">54.55%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Timbersaw</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">20.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Nature's Prophet</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Juggernaut</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">20.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">拉罗</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">61.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 61.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.11</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">60.0% / KDA 4.24</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">66.7%</div>
+                            <div class="duration-label">9场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">57.4%</div>
+                            <div class="duration-label">54场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">64.9%</div>
+                            <div class="duration-label">37场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Primal Beast</span>
+                            <span class="hero-stats">39场 <span style="color: #4ade80;">76.92%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Tinker</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">42.86%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Faceless Void</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">0.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Largo</span>
+                            <span class="hero-stats">6场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Magnus</span>
+                            <span class="hero-stats">3场 <span style="color: #4ade80;">100.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">EK</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">51.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 51.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.12</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">55.0% / KDA 4.16</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">23.1%</div>
+                            <div class="duration-label">13场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">51.9%</div>
+                            <div class="duration-label">52场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">60.0%</div>
+                            <div class="duration-label">35场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Storm Spirit</span>
+                            <span class="hero-stats">27场 <span style="color: #4ade80;">55.56%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Necrophos</span>
+                            <span class="hero-stats">15场 <span style="color: #fbbf24;">53.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">87.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">8场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">6场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">韭韭（时浅）</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">49.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 49.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.64</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 2.68</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">60.0%</div>
+                            <div class="duration-label">10场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">43.3%</div>
+                            <div class="duration-label">67场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">60.9%</div>
+                            <div class="duration-label">23场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Oracle</span>
+                            <span class="hero-stats">37场 <span style="color: #4ade80;">59.46%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Witch Doctor</span>
+                            <span class="hero-stats">13场 <span style="color: #4ade80;">61.54%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">11场 <span style="color: #fbbf24;">45.45%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Zeus</span>
+                            <span class="hero-stats">4场 <span style="color: #f87171;">25.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Batrider</span>
+                            <span class="hero-stats">3场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #F8CECC;">
+            <h2 class="team-title">
+                <span style="color: #F8CECC;">●</span> 队伍6
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">彭律</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">59.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 59.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.2</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">70.0% / KDA 2.12</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">66.7%</div>
+                            <div class="duration-label">6场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">52.3%</div>
+                            <div class="duration-label">65场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">72.4%</div>
+                            <div class="duration-label">29场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lich</span>
+                            <span class="hero-stats">19场 <span style="color: #4ade80;">73.68%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Witch Doctor</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">44.44%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lion</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">37.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Crystal Maiden</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Undying</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">世涛</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">46.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 46.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.29</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">55.0% / KDA 2.4</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">14.3%</div>
+                            <div class="duration-label">7场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">48.4%</div>
+                            <div class="duration-label">64场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">48.3%</div>
+                            <div class="duration-label">29场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">11.11%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Monkey King</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">12.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Tiny</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">0.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Leshrac</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">80.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Earth Spirit</span>
+                            <span class="hero-stats">4场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">Destiny</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">46.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 46.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.47</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 2.33</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">28.6%</div>
+                            <div class="duration-label">21场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">45.8%</div>
+                            <div class="duration-label">59场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">65.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Zeus</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">44.44%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Venomancer</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Clinkz</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Skywrath Mage</span>
+                            <span class="hero-stats">6场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Pudge</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #B4A7D6;">
+            <h2 class="team-title">
+                <span style="color: #B4A7D6;">●</span> 队伍7
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">水豚噜噜</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">62.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 62.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.78</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">70.0% / KDA 4.9</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">64.3%</div>
+                            <div class="duration-label">14场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">62.9%</div>
+                            <div class="duration-label">62场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">58.3%</div>
+                            <div class="duration-label">24场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Weaver</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">44.44%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Windranger</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ursa</span>
+                            <span class="hero-stats">6场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Drow Ranger</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">83.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lifestealer</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card error-card">
+                    <div class="player-header">
+                        <span class="player-name">含章可贞</span>
+                        <span class="player-position">❌ 数据缺失</span>
+                    </div>
+                    <p style="color: #f87171;">无法获取数据</p>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">CatU</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #4ade80;">59.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 59.0%; background: #4ade80;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.38</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-up">🔥 上升</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">80.0% / KDA 6.45</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">59.0%</div>
+                            <div class="duration-label">61场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">63.0%</div>
+                            <div class="duration-label">27场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Storm Spirit</span>
+                            <span class="hero-stats">19场 <span style="color: #4ade80;">78.95%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ember Spirit</span>
+                            <span class="hero-stats">14场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Queen of Pain</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Magnus</span>
+                            <span class="hero-stats">4场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lina</span>
+                            <span class="hero-stats">4场 <span style="color: #4ade80;">100.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">六柒柒</span>
+                        <span class="player-position">5号位辅助</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">52.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 52.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">1.98</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 2.0</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">40.0%</div>
+                            <div class="duration-label">10场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">56.2%</div>
+                            <div class="duration-label">64场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">46.2%</div>
+                            <div class="duration-label">26场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Huskar</span>
+                            <span class="hero-stats">9场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">42.86%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Pudge</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Venomancer</span>
+                            <span class="hero-stats">6场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Lion</span>
+                            <span class="hero-stats">5场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">六柒柒(小号)</span>
+                        <span class="player-position">C位/1号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #f87171;">39.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 39.0%; background: #f87171;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">1.87</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">40.0% / KDA 1.69</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">10.0%</div>
+                            <div class="duration-label">10场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">40.9%</div>
+                            <div class="duration-label">66场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">45.8%</div>
+                            <div class="duration-label">24场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slark</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Huskar</span>
+                            <span class="hero-stats">8场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Magnus</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">6场 <span style="color: #f87171;">0.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Pudge</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="team-section" style="border-left-color: #A9D08E;">
+            <h2 class="team-title">
+                <span style="color: #A9D08E;">●</span> 队伍8
+            </h2>
+            <div class="player-cards">
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">老刘</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">46.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 46.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">2.59</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">55.0% / KDA 2.14</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">25.0%</div>
+                            <div class="duration-label">12场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">64场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">45.8%</div>
+                            <div class="duration-label">24场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Ember Spirit</span>
+                            <span class="hero-stats">19场 <span style="color: #4ade80;">57.89%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Legion Commander</span>
+                            <span class="hero-stats">15场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">9场 <span style="color: #f87171;">33.33%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">8场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Primal Beast</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card error-card">
+                    <div class="player-header">
+                        <span class="player-name">百京泰迪熊</span>
+                        <span class="player-position">❌ 数据缺失</span>
+                    </div>
+                    <p style="color: #f87171;">无法获取数据</p>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">漆黑之牙-卓</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">52.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 52.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.03</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">50.0% / KDA 2.97</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">70.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">50.0%</div>
+                            <div class="duration-label">60场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">40.0%</div>
+                            <div class="duration-label">20场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Hoodwink</span>
+                            <span class="hero-stats">14场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Windranger</span>
+                            <span class="hero-stats">14场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Spirit Breaker</span>
+                            <span class="hero-stats">11场 <span style="color: #f87171;">36.36%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Warlock</span>
+                            <span class="hero-stats">10场 <span style="color: #f87171;">40.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Jakiro</span>
+                            <span class="hero-stats">6场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">WWW</span>
+                        <span class="player-position">三号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">51.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 51.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">3.07</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-stable">➡️ 稳定</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">60.0% / KDA 3.25</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">26.7%</div>
+                            <div class="duration-label">15场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">56.5%</div>
+                            <div class="duration-label">62场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">52.2%</div>
+                            <div class="duration-label">23场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Primal Beast</span>
+                            <span class="hero-stats">22场 <span style="color: #fbbf24;">45.45%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Slardar</span>
+                            <span class="hero-stats">16场 <span style="color: #4ade80;">62.5%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Mars</span>
+                            <span class="hero-stats">9场 <span style="color: #4ade80;">66.67%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Night Stalker</span>
+                            <span class="hero-stats">8场 <span style="color: #f87171;">25.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Omniknight</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">71.43%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="player-card">
+                    <div class="player-header">
+                        <span class="player-name">A</span>
+                        <span class="player-position">中单/2号位</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">整体胜率</span>
+                        <span class="stat-value" style="color: #fbbf24;">51.0%</span>
+                    </div>
+                    <div class="win-rate-bar">
+                        <div class="win-rate-fill" style="width: 51.0%; background: #fbbf24;"></div>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">KDA比率</span>
+                        <span class="stat-value">4.22</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近期状态</span>
+                        <span class="stat-value trend-down">📉 下滑</span>
+                    </div>
+
+                    <div class="stat-row">
+                        <span class="stat-label">近20场</span>
+                        <span class="stat-value">35.0% / KDA 3.52</span>
+                    </div>
+
+                    <div class="duration-analysis">
+
+                        <div class="duration-item">
+                            <div class="duration-label">早期(<30分钟)</div>
+                            <div class="duration-value">75.0%</div>
+                            <div class="duration-label">16场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">中期(30-45分钟)</div>
+                            <div class="duration-value">55.6%</div>
+                            <div class="duration-label">63场</div>
+                        </div>
+
+                        <div class="duration-item">
+                            <div class="duration-label">后期(>45分钟)</div>
+                            <div class="duration-value">19.0%</div>
+                            <div class="duration-label">21场</div>
+                        </div>
+
+                    </div>
+
+                    <div class="hero-list">
+                        <div class="stat-label" style="margin-bottom: 10px;">招牌英雄</div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Huskar</span>
+                            <span class="hero-stats">30场 <span style="color: #4ade80;">60.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Outworld Destroyer</span>
+                            <span class="hero-stats">12场 <span style="color: #fbbf24;">50.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Queen of Pain</span>
+                            <span class="hero-stats">7场 <span style="color: #f87171;">0.0%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Axe</span>
+                            <span class="hero-stats">7场 <span style="color: #4ade80;">57.14%</span></span>
+                        </div>
+
+                        <div class="hero-item">
+                            <span class="hero-name">Viper</span>
+                            <span class="hero-stats">5场 <span style="color: #f87171;">20.0%</span></span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

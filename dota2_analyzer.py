@@ -45,6 +45,7 @@ TEAMS = {
             "Ym": 138637714,
             "海柱哥": 160800934,
             "walker": 174245541,
+            "will": 196068698,
         }
     },
     4: {
@@ -55,6 +56,7 @@ TEAMS = {
             "邮寄时光": 354739911,
             "看我干嘛": 136320131,
             "yuan.": 365587496,
+            "烟火声": 181393151,
         }
     },
     5: {
@@ -85,6 +87,7 @@ TEAMS = {
             "含章可贞": 387262791,
             "CatU": 157428753,
             "六柒柒": 847434740,
+            "六柒柒(小号)": 133919094,
         }
     },
     8: {
@@ -157,6 +160,53 @@ POSITION_NAMES = {
     5: "5号位辅助",
     0: "未知位置"
 }
+
+# 段位映射 (rank_tier 第一位数字代表勋章)
+RANK_MEDALS = {
+    0: "未校准",
+    1: "先驱",
+    2: "卫士",
+    3: "中军",
+    4: "统帅",
+    5: "传奇",
+    6: "万古流芳",
+    7: "超凡入圣",
+    8: "冠绝一世"
+}
+
+def parse_rank_tier(rank_tier, leaderboard_rank=None, computed_mmr=None):
+    """解析段位信息"""
+    if rank_tier is None or rank_tier == 0:
+        return {"medal": "未校准", "stars": 0, "rank_tier": 0, "leaderboard_rank": None, "mmr": None, "display": "未校准"}
+
+    medal_num = rank_tier // 10  # 第一位是勋章等级
+    stars = rank_tier % 10       # 第二位是星级
+    medal_name = RANK_MEDALS.get(medal_num, "未知")
+
+    # 构建显示字符串
+    if medal_num == 8:  # 冠绝一世
+        if leaderboard_rank:
+            display = f"冠绝一世 #{leaderboard_rank}"
+        else:
+            display = "冠绝一世"
+    else:
+        star_str = "★" * stars if stars > 0 else ""
+        display = f"{medal_name} {star_str}".strip()
+
+    # 添加MMR显示
+    mmr_display = None
+    if computed_mmr:
+        mmr_display = int(computed_mmr)
+        display += f" ({mmr_display} MMR)"
+
+    return {
+        "medal": medal_name,
+        "stars": stars,
+        "rank_tier": rank_tier,
+        "leaderboard_rank": leaderboard_rank,
+        "mmr": mmr_display,
+        "display": display
+    }
 
 # ============== 英雄数据 ==============
 
@@ -527,9 +577,18 @@ def fetch_all_players_data():
             stats = analyze_matches(matches, hero_map)
 
             if stats:
+                # 解析段位信息
+                rank_info = None
+                if player_info:
+                    rank_tier = player_info.get('rank_tier')
+                    leaderboard_rank = player_info.get('leaderboard_rank')
+                    computed_mmr = player_info.get('computed_mmr')
+                    rank_info = parse_rank_tier(rank_tier, leaderboard_rank, computed_mmr)
+
                 team_results["players"][player_name] = {
                     "account_id": account_id,
                     "profile": player_info.get('profile', {}) if player_info else {},
+                    "rank": rank_info,
                     "stats": stats
                 }
 
@@ -537,7 +596,9 @@ def fetch_all_players_data():
                 trend = stats.get("trend_analysis", {})
                 trend_emoji = trend.get("trend_emoji", "➡️") if trend else "➡️"
 
+                rank_display = rank_info.get("display", "未知") if rank_info else "未知"
                 print(f"  ✅ 成功获取 {len(matches)} 场比赛数据")
+                print(f"     段位: {rank_display}")
                 print(f"     位置: {pos['position_name']} (置信度: {pos['confidence']}%)")
                 print(f"     胜率: {stats['win_rate']}% | KDA: {stats['kda_ratio']} {trend_emoji}")
                 print(f"     招牌: {', '.join([h['hero'] for h in stats['top_heroes'][:3]])}")
@@ -578,8 +639,13 @@ def generate_wechat_summary(results):
             trend_emoji = trend.get("trend_emoji", "➡️") if trend else "➡️"
             trend_text = trend.get("trend_text", "状态稳定") if trend else "状态稳定"
 
+            # 段位信息
+            rank_info = player_data.get("rank", {})
+            rank_display = rank_info.get("display", "未知") if rank_info else "未知"
+
             # 主要信息行
             lines.append(f"\n🎯 {player_name} ({pos['position_name']}) {trend_emoji}{trend_text}")
+            lines.append(f"   段位: {rank_display}")
 
             # 招牌英雄
             top3 = stats["top_heroes"][:3]
@@ -980,9 +1046,14 @@ def generate_bp_report(results, output_file):
                 elif trend.get("trend_direction") == "down":
                     trend_emoji = " 📉状态低迷"
 
+            # 段位信息
+            rank_info = player_data.get("rank", {})
+            rank_display = rank_info.get("display", "未知") if rank_info else "未知"
+
             lines.append("")
             lines.append(f"┌─────────────────────────────────────────")
             lines.append(f"│ 🎮 {player_name} [{position_name}]{trend_emoji}")
+            lines.append(f"│    段位: {rank_display}")
             lines.append(f"│    整体: {stats['win_rate']}%胜率 | KDA: {stats['kda_ratio']}")
 
             if trend and trend.get("recent"):
@@ -1260,11 +1331,16 @@ def generate_bp_html_report(results, output_file):
                 elif trend.get("trend_direction") == "down":
                     trend_html = '<span class="trend-cold">📉 状态低迷</span>'
 
+            # 段位信息
+            rank_info = player_data.get("rank", {})
+            rank_display = rank_info.get("display", "未知") if rank_info else "未知"
+
             html += f"""
             <div class="player-card">
                 <div class="player-header">
                     <div>
                         <div class="player-name">{player_name}</div>
+                        <div class="player-stats">🏅 {rank_display}</div>
                         <div class="player-stats">{stats['win_rate']}%胜率 | KDA {stats['kda_ratio']} {trend_html}</div>
                     </div>
                     <span class="player-position">{pos['position_name']}</span>
@@ -1397,10 +1473,15 @@ def generate_bp_markdown_report(results, output_file):
                 elif trend.get("trend_direction") == "down":
                     trend_text = " 📉状态低迷"
 
+            # 段位信息
+            rank_info = player_data.get("rank", {})
+            rank_display = rank_info.get("display", "未知") if rank_info else "未知"
+
             lines.append(f"### {player_name} 【{position_name}】{trend_text}")
             lines.append("")
 
             # 基础数据
+            lines.append(f"**段位**: {rank_display}")
             lines.append(f"**整体**: {stats['win_rate']}%胜率 | KDA: {stats['kda_ratio']}")
             if trend and trend.get("recent"):
                 recent = trend["recent"]

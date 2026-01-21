@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dota2 BP分析报告</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #ff6b6b; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .legend {
+            background: rgba(255,255,255,0.05);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #f59e0b; }
+        .dot-gray { background: #6b7280; }
+        .team-section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            margin: 25px 0;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .team-name { font-size: 1.5em; font-weight: bold; }
+        .player-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .player-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .player-name { font-size: 1.2em; font-weight: bold; color: #fff; }
+        .player-position {
+            background: rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        .player-stats { color: #888; font-size: 0.9em; margin-bottom: 15px; }
+        .trend-hot { color: #f97316; }
+        .trend-cold { color: #60a5fa; }
+        .section-title {
+            font-size: 0.85em;
+            color: #888;
+            margin: 15px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .hero-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin: 6px 0;
+            border-left: 3px solid transparent;
+        }
+        .hero-item.threat-high { border-left-color: #ef4444; background: rgba(239,68,68,0.1); }
+        .hero-item.threat-medium { border-left-color: #f59e0b; background: rgba(245,158,11,0.1); }
+        .hero-name { font-weight: 500; }
+        .hero-stats-inline { font-size: 0.9em; color: #888; }
+        .hero-winrate { font-weight: bold; }
+        .winrate-high { color: #4ade80; }
+        .winrate-mid { color: #fbbf24; }
+        .winrate-low { color: #f87171; }
+        .shallow-pool-warning {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+        .ban-priority {
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        .ban-priority h3 { color: #a5b4fc; margin-bottom: 15px; }
+        .ban-list { list-style: none; }
+        .ban-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+        }
+        .ban-rank { color: #f59e0b; font-weight: bold; width: 30px; }
+        .ban-hero { flex: 1; }
+        .ban-player { color: #888; width: 100px; }
+        .ban-score { color: #4ade80; width: 60px; text-align: right; }
+        .no-signature { color: #666; font-style: italic; padding: 10px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎯 BP专用分析报告</h1>
+    <p class="subtitle">2026-01-22 01:52 生成</p>
+
+    <div class="legend">
+        <div class="legend-item"><span class="dot dot-red"></span> 高威胁 (胜率≥60%)</div>
+        <div class="legend-item"><span class="dot dot-yellow"></span> 中威胁 (胜率≥55%)</div>
+        <div class="legend-item"><span class="dot dot-gray"></span> 熟练英雄</div>
+    </div>
+
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #FFF2CC;">● 队伍1</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">思Kirara</div>
+                        <div class="player-stats">🏅 中军 ★★★★★ (4156 MMR)</div>
+                        <div class="player-stats">61.0%胜率 | KDA 3.18 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Ogre Magi</span>
+                    <span class="hero-stats-inline">17场 <span class="hero-winrate winrate-high">64.71%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Mars</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-high">75.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Centaur Warrunner</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">75.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Bounty Hunter</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Spirit Breaker</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">德德</div>
+                        <div class="player-stats">🏅 传奇 ★★ (3911 MMR)</div>
+                        <div class="player-stats">46.0%胜率 | KDA 2.6 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">28场 <span class="hero-winrate winrate-high">60.71%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">awe</div>
+                        <div class="player-stats">🏅 超凡入圣 ★★★★★ (4049 MMR)</div>
+                        <div class="player-stats">49.0%胜率 | KDA 2.99 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Pangolier</span>
+                    <span class="hero-stats-inline">17场 <span class="hero-winrate winrate-high">64.71%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Timbersaw</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-mid">58.33%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Primal Beast</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">peter</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (4000 MMR)</div>
+                        <div class="player-stats">53.0%胜率 | KDA 4.42 </div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">10场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">75.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Outworld Destroyer</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">83.33%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Queen of Pain</span>
+                    <span class="hero-stats-inline">21场 <span class="hero-winrate winrate-low">47.62%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">JY.LIU</div>
+                        <div class="player-stats">🏅 统帅 ★★★★★ (4113 MMR)</div>
+                        <div class="player-stats">55.0%胜率 | KDA 3.53 <span class="trend-hot">🔥 状态火热</span></div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Slark</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Weaver</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Chaos Knight</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Drow Ranger</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Spectre</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Storm Spirit</span>
+                    <span class="hero-stats-inline">13场 <span class="hero-winrate winrate-mid">53.85%</span></span>
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Outworld Destroyer</span>
+                    <span class="ban-player">peter</span>
+                    <span class="ban-score">6场 83.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Necrophos</span>
+                    <span class="ban-player">思Kirara</span>
+                    <span class="ban-score">12场 75.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Spirit Breaker</span>
+                    <span class="ban-player">思Kirara</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Chaos Knight</span>
+                    <span class="ban-player">JY.LIU</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Spectre</span>
+                    <span class="ban-player">JY.LIU</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Centaur Warrunner</span>
+                    <span class="ban-player">思Kirara</span>
+                    <span class="ban-score">8场 75.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Necrophos</span>
+                    <span class="ban-player">peter</span>
+                    <span class="ban-score">8场 75.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Slark</span>
+                    <span class="ban-player">JY.LIU</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #D5E8D4;">● 队伍2</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">ahji</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (4218 MMR)</div>
+                        <div class="player-stats">58.0%胜率 | KDA 3.43 </div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Spectre</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Drow Ranger</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">75.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Clinkz</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Slardar</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Luna</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Tidehunter</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">Sam QL</div>
+                        <div class="player-stats">🏅 中军 ★ (4399 MMR)</div>
+                        <div class="player-stats">57.0%胜率 | KDA 3.28 <span class="trend-hot">🔥 状态火热</span></div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Drow Ranger</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Witch Doctor</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">85.71%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Jakiro</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Shadow Shaman</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Omniknight</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Phoenix</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-mid">52.63%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">清寒</div>
+                        <div class="player-stats">🏅 先驱 ★★★★ (4083 MMR)</div>
+                        <div class="player-stats">35.0%胜率 | KDA 1.1 </div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Jakiro</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">83.33%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅1个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">阿边边边边边</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (3962 MMR)</div>
+                        <div class="player-stats">49.0%胜率 | KDA 3.04 </div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Huskar</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Queen of Pain</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Kez</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">VK</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (4067 MMR)</div>
+                        <div class="player-stats">46.0%胜率 | KDA 2.59 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Ember Spirit</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-mid">57.89%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Axe</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Primal Beast</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Witch Doctor</span>
+                    <span class="ban-player">Sam QL</span>
+                    <span class="ban-score">7场 85.71%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Jakiro</span>
+                    <span class="ban-player">清寒</span>
+                    <span class="ban-score">6场 83.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Slardar</span>
+                    <span class="ban-player">ahji</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Drow Ranger</span>
+                    <span class="ban-player">ahji</span>
+                    <span class="ban-score">8场 75.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Jakiro</span>
+                    <span class="ban-player">Sam QL</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Clinkz</span>
+                    <span class="ban-player">ahji</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Viper</span>
+                    <span class="ban-player">Sam QL</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Shadow Shaman</span>
+                    <span class="ban-player">Sam QL</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #DAE8FC;">● 队伍3</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">LiffyIsland</div>
+                        <div class="player-stats">🏅 中军 ★★★★★ (4088 MMR)</div>
+                        <div class="player-stats">55.0%胜率 | KDA 2.91 </div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">16场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">15场 <span class="hero-winrate winrate-high">73.33%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Zeus</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Silencer</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Ancient Apparition</span>
+                    <span class="hero-stats-inline">11场 <span class="hero-winrate winrate-mid">54.55%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">Ym</div>
+                        <div class="player-stats">🏅 万古流芳 ★★★★ (3988 MMR)</div>
+                        <div class="player-stats">50.0%胜率 | KDA 3.73 </div>
+                    </div>
+                    <span class="player-position">4号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Windranger</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Spectre</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lich</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">83.33%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Hoodwink</span>
+                    <span class="hero-stats-inline">22场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">海柱哥</div>
+                        <div class="player-stats">🏅 万古流芳 ★★★★★ (3994 MMR)</div>
+                        <div class="player-stats">49.0%胜率 | KDA 2.55 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Tidehunter</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-high">68.42%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Sand King</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">walker</div>
+                        <div class="player-stats">🏅 传奇 ★★★★ (4228 MMR)</div>
+                        <div class="player-stats">53.0%胜率 | KDA 2.76 <span class="trend-hot">🔥 状态火热</span></div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Slardar</span>
+                    <span class="hero-stats-inline">16场 <span class="hero-winrate winrate-high">68.75%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Warlock</span>
+                    <span class="hero-stats-inline">11场 <span class="hero-winrate winrate-high">81.82%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">will</div>
+                        <div class="player-stats">🏅 冠绝一世 #4515 (3919 MMR)</div>
+                        <div class="player-stats">52.0%胜率 | KDA 3.43 </div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Juggernaut</span>
+                    <span class="hero-stats-inline">16场 <span class="hero-winrate winrate-mid">56.25%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">100.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Weaver</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Necrophos</span>
+                    <span class="ban-player">will</span>
+                    <span class="ban-score">5场 100.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Warlock</span>
+                    <span class="ban-player">walker</span>
+                    <span class="ban-score">11场 81.82%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Legion Commander</span>
+                    <span class="ban-player">LiffyIsland</span>
+                    <span class="ban-score">15场 73.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Lich</span>
+                    <span class="ban-player">Ym</span>
+                    <span class="ban-score">6场 83.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Viper</span>
+                    <span class="ban-player">walker</span>
+                    <span class="ban-score">14场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Slardar</span>
+                    <span class="ban-player">walker</span>
+                    <span class="ban-score">16场 68.75%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Zeus</span>
+                    <span class="ban-player">LiffyIsland</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Spectre</span>
+                    <span class="ban-player">Ym</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #E1D5E7;">● 队伍4</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">黄神AME</div>
+                        <div class="player-stats">🏅 统帅 ★★★★ (4055 MMR)</div>
+                        <div class="player-stats">49.0%胜率 | KDA 2.75 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Outworld Destroyer</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-high">64.29%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Centaur Warrunner</span>
+                    <span class="hero-stats-inline">10场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Shadow Shaman</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">邮寄时光</div>
+                        <div class="player-stats">🏅 传奇 ★★ (3990 MMR)</div>
+                        <div class="player-stats">51.0%胜率 | KDA 3.54 <span class="trend-hot">🔥 状态火热</span></div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Disruptor</span>
+                    <span class="hero-stats-inline">10场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lion</span>
+                    <span class="hero-stats-inline">9场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">100.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Snapfire</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Shadow Shaman</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">看我干嘛</div>
+                        <div class="player-stats">🏅 冠绝一世 #4199 (4153 MMR)</div>
+                        <div class="player-stats">59.0%胜率 | KDA 2.84 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">4号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Grimstroke</span>
+                    <span class="hero-stats-inline">27场 <span class="hero-winrate winrate-high">62.96%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Rubick</span>
+                    <span class="hero-stats-inline">13场 <span class="hero-winrate winrate-high">61.54%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Magnus</span>
+                    <span class="hero-stats-inline">10场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Witch Doctor</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Clockwerk</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">yuan.</div>
+                        <div class="player-stats">🏅 万古流芳 ★★ (4044 MMR)</div>
+                        <div class="player-stats">60.0%胜率 | KDA 3.46 </div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Void Spirit</span>
+                    <span class="hero-stats-inline">27场 <span class="hero-winrate winrate-mid">59.26%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Nature's Prophet</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-high">83.33%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Clinkz</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Phantom Lancer</span>
+                    <span class="hero-stats-inline">11场 <span class="hero-winrate winrate-mid">54.55%</span></span>
+                </div>
+</div>
+            <div class="player-card" style="opacity: 0.5;">
+                <div class="player-header">
+                    <span class="player-name">烟火声</span>
+                    <span class="player-position">数据缺失</span>
+                </div>
+            </div>
+</div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Necrophos</span>
+                    <span class="ban-player">邮寄时光</span>
+                    <span class="ban-score">6场 100.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Nature's Prophet</span>
+                    <span class="ban-player">yuan.</span>
+                    <span class="ban-score">12场 83.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Centaur Warrunner</span>
+                    <span class="ban-player">黄神AME</span>
+                    <span class="ban-score">10场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Grimstroke</span>
+                    <span class="ban-player">看我干嘛</span>
+                    <span class="ban-score">27场 62.96%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Outworld Destroyer</span>
+                    <span class="ban-player">黄神AME</span>
+                    <span class="ban-score">14场 64.29%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Lion</span>
+                    <span class="ban-player">邮寄时光</span>
+                    <span class="ban-score">9场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Rubick</span>
+                    <span class="ban-player">看我干嘛</span>
+                    <span class="ban-score">13场 61.54%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Disruptor</span>
+                    <span class="ban-player">邮寄时光</span>
+                    <span class="ban-score">10场 60.0%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #FFE6CC;">● 队伍5</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">Dom</div>
+                        <div class="player-stats">🏅 统帅 ★★★ (4184 MMR)</div>
+                        <div class="player-stats">55.0%胜率 | KDA 2.43 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lich</span>
+                    <span class="hero-stats-inline">18场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Witch Doctor</span>
+                    <span class="hero-stats-inline">10场 <span class="hero-winrate winrate-high">70.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Chaos Knight</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">85.71%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">老板</div>
+                        <div class="player-stats">🏅 超凡入圣 ★★★★★ (3833 MMR)</div>
+                        <div class="player-stats">42.0%胜率 | KDA 2.58 </div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="no-signature">无明显招牌英雄</div><div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Pugna</span>
+                    <span class="hero-stats-inline">17场 <span class="hero-winrate winrate-mid">52.94%</span></span>
+                </div>
+
+                <div class="hero-item">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">11场 <span class="hero-winrate winrate-mid">54.55%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅0个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">拉罗</div>
+                        <div class="player-stats">🏅 万古流芳 ★★★★★ (4411 MMR)</div>
+                        <div class="player-stats">61.0%胜率 | KDA 4.11 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Primal Beast</span>
+                    <span class="hero-stats-inline">39场 <span class="hero-winrate winrate-high">76.92%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Largo</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅1个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">EK</div>
+                        <div class="player-stats">🏅 传奇 ★★ (4039 MMR)</div>
+                        <div class="player-stats">51.0%胜率 | KDA 4.12 </div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Storm Spirit</span>
+                    <span class="hero-stats-inline">27场 <span class="hero-winrate winrate-mid">55.56%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Jakiro</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">87.5%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Necrophos</span>
+                    <span class="hero-stats-inline">15场 <span class="hero-winrate winrate-mid">53.33%</span></span>
+                </div>
+
+                <div class="hero-item">
+                    <span class="hero-name">Legion Commander</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="hero-item">
+                    <span class="hero-name">Viper</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">韭韭（时浅）</div>
+                        <div class="player-stats">🏅 冠绝一世 #4850 (4046 MMR)</div>
+                        <div class="player-stats">49.0%胜率 | KDA 2.64 </div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Oracle</span>
+                    <span class="hero-stats-inline">37场 <span class="hero-winrate winrate-mid">59.46%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Witch Doctor</span>
+                    <span class="hero-stats-inline">13场 <span class="hero-winrate winrate-high">61.54%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Jakiro</span>
+                    <span class="hero-stats-inline">11场 <span class="hero-winrate winrate-low">45.45%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Jakiro</span>
+                    <span class="ban-player">EK</span>
+                    <span class="ban-score">8场 87.5%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Primal Beast</span>
+                    <span class="ban-player">拉罗</span>
+                    <span class="ban-score">39场 76.92%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Chaos Knight</span>
+                    <span class="ban-player">Dom</span>
+                    <span class="ban-score">7场 85.71%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Witch Doctor</span>
+                    <span class="ban-player">Dom</span>
+                    <span class="ban-score">10场 70.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Lich</span>
+                    <span class="ban-player">Dom</span>
+                    <span class="ban-score">18场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Witch Doctor</span>
+                    <span class="ban-player">韭韭（时浅）</span>
+                    <span class="ban-score">13场 61.54%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Oracle</span>
+                    <span class="ban-player">韭韭（时浅）</span>
+                    <span class="ban-score">37场 59.46%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Storm Spirit</span>
+                    <span class="ban-player">EK</span>
+                    <span class="ban-score">27场 55.56%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #F8CECC;">● 队伍6</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">彭律</div>
+                        <div class="player-stats">🏅 统帅 ★★★ (4123 MMR)</div>
+                        <div class="player-stats">59.0%胜率 | KDA 2.2 </div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lich</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-high">73.68%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Crystal Maiden</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Undying</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Drow Ranger</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Skywrath Mage</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">世涛</div>
+                        <div class="player-stats">🏅 万古流芳 ★★ (4233 MMR)</div>
+                        <div class="player-stats">46.0%胜率 | KDA 2.29 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Leshrac</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅1个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">Destiny</div>
+                        <div class="player-stats">🏅 超凡入圣 ★★★★ (4004 MMR)</div>
+                        <div class="player-stats">46.0%胜率 | KDA 2.47 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Venomancer</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Skywrath Mage</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅1个招牌) - 容易被针对
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Lich</span>
+                    <span class="ban-player">彭律</span>
+                    <span class="ban-score">19场 73.68%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Leshrac</span>
+                    <span class="ban-player">世涛</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Undying</span>
+                    <span class="ban-player">彭律</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Venomancer</span>
+                    <span class="ban-player">Destiny</span>
+                    <span class="ban-score">8场 62.5%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Drow Ranger</span>
+                    <span class="ban-player">彭律</span>
+                    <span class="ban-score">5场 60.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Skywrath Mage</span>
+                    <span class="ban-player">彭律</span>
+                    <span class="ban-score">5场 60.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Crystal Maiden</span>
+                    <span class="ban-player">彭律</span>
+                    <span class="ban-score">7场 57.14%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #B4A7D6;">● 队伍7</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">水豚噜噜</div>
+                        <div class="player-stats">🏅 冠绝一世 #2019 (4143 MMR)</div>
+                        <div class="player-stats">62.0%胜率 | KDA 4.78 </div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Windranger</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Drow Ranger</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">83.33%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lifestealer</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Gyrocopter</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Techies</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Ursa</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card" style="opacity: 0.5;">
+                <div class="player-header">
+                    <span class="player-name">含章可贞</span>
+                    <span class="player-position">数据缺失</span>
+                </div>
+            </div>
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">CatU</div>
+                        <div class="player-stats">🏅 传奇 ★★★★★ (4177 MMR)</div>
+                        <div class="player-stats">59.0%胜率 | KDA 4.38 <span class="trend-hot">🔥 状态火热</span></div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Storm Spirit</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-high">78.95%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Queen of Pain</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Ember Spirit</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">六柒柒</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (4167 MMR)</div>
+                        <div class="player-stats">52.0%胜率 | KDA 1.98 </div>
+                    </div>
+                    <span class="player-position">5号位辅助</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Huskar</span>
+                    <span class="hero-stats-inline">9场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Lion</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Venomancer</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅2个招牌) - 容易被针对
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">六柒柒(小号)</div>
+                        <div class="player-stats">🏅 统帅 ★★★★★ (3722 MMR)</div>
+                        <div class="player-stats">39.0%胜率 | KDA 1.87 </div>
+                    </div>
+                    <span class="player-position">C位/1号位</span>
+                </div>
+<div class="no-signature">无明显招牌英雄</div><div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Huskar</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+
+                <div class="shallow-pool-warning">
+                    ⚠️ 英雄池较浅 (仅0个招牌) - 容易被针对
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Storm Spirit</span>
+                    <span class="ban-player">CatU</span>
+                    <span class="ban-score">19场 78.95%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Drow Ranger</span>
+                    <span class="ban-player">水豚噜噜</span>
+                    <span class="ban-score">6场 83.33%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Gyrocopter</span>
+                    <span class="ban-player">水豚噜噜</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Windranger</span>
+                    <span class="ban-player">水豚噜噜</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Queen of Pain</span>
+                    <span class="ban-player">CatU</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Lifestealer</span>
+                    <span class="ban-player">水豚噜噜</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Huskar</span>
+                    <span class="ban-player">六柒柒</span>
+                    <span class="ban-score">9场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Techies</span>
+                    <span class="ban-player">水豚噜噜</span>
+                    <span class="ban-score">5场 60.0%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+    <div class="team-section">
+        <div class="team-header">
+            <span class="team-name" style="color: #A9D08E;">● 队伍8</span>
+        </div>
+        <div class="player-grid">
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">老刘</div>
+                        <div class="player-stats">🏅 超凡入圣 ★ (4067 MMR)</div>
+                        <div class="player-stats">46.0%胜率 | KDA 2.59 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Ember Spirit</span>
+                    <span class="hero-stats-inline">19场 <span class="hero-winrate winrate-mid">57.89%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Axe</span>
+                    <span class="hero-stats-inline">8场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Primal Beast</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+</div>
+            <div class="player-card" style="opacity: 0.5;">
+                <div class="player-header">
+                    <span class="player-name">百京泰迪熊</span>
+                    <span class="player-position">数据缺失</span>
+                </div>
+            </div>
+
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">漆黑之牙-卓</div>
+                        <div class="player-stats">🏅 万古流芳 ★ (4025 MMR)</div>
+                        <div class="player-stats">52.0%胜率 | KDA 3.03 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Hoodwink</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Jakiro</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Slardar</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Windranger</span>
+                    <span class="hero-stats-inline">14场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">WWW</div>
+                        <div class="player-stats">🏅 超凡入圣 ★★★ (3967 MMR)</div>
+                        <div class="player-stats">51.0%胜率 | KDA 3.07 </div>
+                    </div>
+                    <span class="player-position">三号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Slardar</span>
+                    <span class="hero-stats-inline">16场 <span class="hero-winrate winrate-high">62.5%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Mars</span>
+                    <span class="hero-stats-inline">9场 <span class="hero-winrate winrate-high">66.67%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Omniknight</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-high">71.43%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Primal Beast</span>
+                    <span class="hero-stats-inline">22场 <span class="hero-winrate winrate-low">45.45%</span></span>
+                </div>
+
+                <div class="hero-item">
+                    <span class="hero-name">Riki</span>
+                    <span class="hero-stats-inline">6场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div>
+            <div class="player-card">
+                <div class="player-header">
+                    <div>
+                        <div class="player-name">A</div>
+                        <div class="player-stats">🏅 万古流芳 ★★★★ (3958 MMR)</div>
+                        <div class="player-stats">51.0%胜率 | KDA 4.22 <span class="trend-cold">📉 状态低迷</span></div>
+                    </div>
+                    <span class="player-position">中单/2号位</span>
+                </div>
+<div class="section-title">🚨 必Ban候选</div>
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Huskar</span>
+                    <span class="hero-stats-inline">30场 <span class="hero-winrate winrate-high">60.0%</span></span>
+                </div>
+
+                <div class="hero-item threat-medium">
+                    <span class="hero-name">Axe</span>
+                    <span class="hero-stats-inline">7场 <span class="hero-winrate winrate-mid">57.14%</span></span>
+                </div>
+
+                <div class="hero-item threat-high">
+                    <span class="hero-name">Luna</span>
+                    <span class="hero-stats-inline">5场 <span class="hero-winrate winrate-high">80.0%</span></span>
+                </div>
+<div class="section-title">熟练英雄</div>
+                <div class="hero-item">
+                    <span class="hero-name">Outworld Destroyer</span>
+                    <span class="hero-stats-inline">12场 <span class="hero-winrate winrate-mid">50.0%</span></span>
+                </div>
+</div></div>
+        <div class="ban-priority">
+            <h3>📊 Ban优先级排序</h3>
+            <ul class="ban-list">
+
+                <li>
+                    <span class="ban-rank">1.</span>
+                    <span class="ban-hero">Luna</span>
+                    <span class="ban-player">A</span>
+                    <span class="ban-score">5场 80.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">2.</span>
+                    <span class="ban-hero">Hoodwink</span>
+                    <span class="ban-player">漆黑之牙-卓</span>
+                    <span class="ban-score">14场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">3.</span>
+                    <span class="ban-hero">Omniknight</span>
+                    <span class="ban-player">WWW</span>
+                    <span class="ban-score">7场 71.43%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">4.</span>
+                    <span class="ban-hero">Slardar</span>
+                    <span class="ban-player">WWW</span>
+                    <span class="ban-score">16场 62.5%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">5.</span>
+                    <span class="ban-hero">Huskar</span>
+                    <span class="ban-player">A</span>
+                    <span class="ban-score">30场 60.0%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">6.</span>
+                    <span class="ban-hero">Jakiro</span>
+                    <span class="ban-player">漆黑之牙-卓</span>
+                    <span class="ban-score">6场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">7.</span>
+                    <span class="ban-hero">Mars</span>
+                    <span class="ban-player">WWW</span>
+                    <span class="ban-score">9场 66.67%</span>
+                </li>
+
+                <li>
+                    <span class="ban-rank">8.</span>
+                    <span class="ban-hero">Axe</span>
+                    <span class="ban-player">老刘</span>
+                    <span class="ban-score">8场 62.5%</span>
+                </li>
+
+            </ul>
+        </div>
+</div>
+</div>
+</body>
+</html>
